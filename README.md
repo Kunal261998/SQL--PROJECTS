@@ -118,10 +118,11 @@ select userid ,sum(total_points)*2.5  total_money_earned from
 
 
 calculate for which product max points given till now ?
-se
-select product_id, sum(total_points) total_points_earned from
+select * from 
+(select * , rank() over(order by total_points_earned desc) rnk from
+(select product_id, sum(total_points) total_points_earned from
 (select e.*, amount/reward_points total_points from
 (select d.*, case when product_id =1 then 5 when product_id =2 then 2 when product_id =3 then 5 else 0 end as reward_points from
 (select c.userid,c.product_id ,sum(price) amount from
-(select a.*, b.price from sales a inner join product b on a.product_id =b.product_id )c group by userid,product_id)d)e)f group by product_id ;
+(select a.*, b.price from sales a inner join product b on a.product_id =b.product_id )c group by userid,product_id)d)e)f group by product_id )f) g where rnk =1;
 

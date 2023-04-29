@@ -126,3 +126,23 @@ select * from
 (select c.userid,c.product_id ,sum(price) amount from
 (select a.*, b.price from sales a inner join product b on a.product_id =b.product_id )c group by userid,product_id)d)e)f group by product_id )f) g where rnk =1;
 
+10.In the first one year after a customer joins the gold program (including their join date ) irrespective of what the customer has purchased they earn 5 zomto points for every 10 rs spent who earned user 1 or user 3 and what was their points earnings in their first yr ?
+
+0.5 points =1 rs  multiline comment /*.......*/
+
+e.g --date cant add with date directly so use dateadd func
+select c.*,d.price*0.5 total_points_earned from 
+(select a.userid ,a.created_date ,a.product_id ,b.gold_signup_date from sales a inner join goldusers_signup b on a.userid=b.userid and created_date>= gold_signup_date and created_date<=DATEADD(year,1,gold_signup_date))c inner join product d on c.product_id=d.product_id;
+
+11. Rank all cutomers transactions?
+
+select *, rank() over (partition by userid order by created_date ) from sales;   --created_date is in asc order
+
+12 .Rank all the transactions foe each member whenever they are a zomato gold member for every non gold members marked as na -- means rank will be their for member and for non member rank will be na
+
+
+select d.*,case when rnk=0 then 'NA' else rnk end as ranking from       # cast is used to convert int rnk to varchar and left join used as non gold member also included
+(select c.*, cast (case when gold_signup_date is null then 0 else rank() over (partition by userid order by created_date desc) end as varchar ) as rnk from
+(select a.userid,a.created_date,a.product_id, b.gold_signup_date from sales a left join goldusers_signup b on a.userid=b.userid and created_date>=gold_signup_date)c)d;
+
+

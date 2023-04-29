@@ -145,4 +145,6 @@ select d.*,case when rnk=0 then 'NA' else rnk end as ranking from       # cast i
 (select c.*, cast (case when gold_signup_date is null then 0 else rank() over (partition by userid order by created_date desc) end as varchar ) as rnk from
 (select a.userid,a.created_date,a.product_id, b.gold_signup_date from sales a left join goldusers_signup b on a.userid=b.userid and created_date>=gold_signup_date)c)d;
 
+Conclusion --
 
+We have analysed the zomato data set with multiple data and 4 tables and we got inlighted to sales and analysis of non member and gold member customers which will be helpful to increase sales in future to provide offer to target customers for their fav items.

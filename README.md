@@ -89,4 +89,39 @@ select *,rank() over(partition by userid order by cnt desc )rnk  from           
 (select userid,product_id,count(product_id) cnt from sales group by userid ,product_id)x)y  
 where rnk =1;
 
+6.Which items was purchased first by the customer when they became gold member ?
+select * from 
+(select x.* ,rank() over (partition by userid order by created_date ) rnk from
+(select a.userid,a.created_date,a.product_id ,b.gold_signup_date from sales a inner join goldusers_signup b on a.userid=b.userid and a.created_date >=b.gold_signup_date) x)y where rnk =1;
+
+7.Which item was purchased just before the customer became a member ? 
+select * from 
+(select x.* ,rank() over (partition by userid order by created_date desc ) rnk from
+(select a.userid,a.created_date,a.product_id ,b.gold_signup_date from sales a inner join goldusers_signup b on a.userid=b.userid and created_date <= gold_signup_date) x)y where rnk =1;
+
+8.What is the total orders and amount spent for each member before they become a gold member?
+
+select userid,count(created_date),sum(price) from 
+(select x.*, y.price from
+(select a.userid,a.created_date,a.product_id ,b.gold_signup_date from sales a inner join goldusers_signup b on a.userid=b.userid and created_date <= gold_signup_date )x inner join product y on x.product_id =y.product_id) z
+group by userid;
+
+
+9.If buying each product generates reward points for e.g -5rs =2 points i.e 2.5 for1 point and each product have differnt purchasing points e.g- p1 -5rs =1 zomato point ,p2 =10rd =5 zomato pints and p3 -5rs =1 zomato point so calculate total point collected by each customer and for which product max points given till now.
+
+calculate total point collected by each customer ?
+select userid ,sum(total_points)*2.5  total_money_earned from 
+(select e.*, amount/reward_points total_points from
+(select d.*, case when product_id =1 then 5 when product_id =2 then 2 when product_id =3 then 5 else 0 end as reward_points from
+(select c.userid,c.product_id ,sum(price) amount from
+(select a.*, b.price from sales a inner join product b on a.product_id =b.product_id)c group by userid,product_id)d)e)f group by userid ;
+
+
+calculate for which product max points given till now ?
+se
+select product_id, sum(total_points) total_points_earned from
+(select e.*, amount/reward_points total_points from
+(select d.*, case when product_id =1 then 5 when product_id =2 then 2 when product_id =3 then 5 else 0 end as reward_points from
+(select c.userid,c.product_id ,sum(price) amount from
+(select a.*, b.price from sales a inner join product b on a.product_id =b.product_id )c group by userid,product_id)d)e)f group by product_id ;
 
